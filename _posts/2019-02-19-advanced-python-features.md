@@ -9,19 +9,44 @@ Recently, I'm been using Python alot, so I wanted to explore the advanced python
 I read a bunch of blog posts as well as Fluent Python. Here are my summarized findings. 
 
 ## 1. Packing and Unpacking 
-If you are your arguments in a list or a dictionary, you can the unpacking operators * and ** to pass the arguments.
-{% highlight python linenos %}
-  def repeat(count, name):
-      for i in range(count):
-          print(name)
+If you are your arguments in a list or a dictionary, you can the unpacking operators * and ** to pass the arguments. This turns out to be very useful because you can create very flexible functions. Below is an example of a function outputting html based on a variety of inputs.
+{% highlight python %}
+def tag(name, *content, cls=None, **attrs):
+      if cls is not None:
+          attrs['class'] = cls
+      if attrs:
+          attr_str = ''.join(' %s="%s"' % (attr, value)
+                            for attr, value
+                            in sorted(attrs.items()))
+      else:
+          attr_str = ''
+      
+      if content:
+          return '\n'.join('<%s%s>%s</%s>' %
+                          (name, attr_str, c, name) for c in content)
+      else:
+          return '<%s%s />' % (name, attr_str)
 
-  print("Call function repeat using a list of arguments:")
-  args = [4, "cats"]
-  repeat(*args)
+>>> tag('br')   
+'<br />'
+>>> tag('p', 'hello')   
+'<p>hello</p>'
+>>> print(tag('p', 'hello', 'world'))
+<p>hello</p>
+<p>world</p>
+>>> tag('p', 'hello', id=33)   
+<p id="33">hello</p>
+>>> print(tag('p', 'hello', 'world', cls='sidebar'))   
+<p class="sidebar">hello</p>
+<p class="sidebar">world</p>
+>>> tag(content='testing', name="img")
+<img content="testing" />
+>>> my_tag = {'name': 'img', 'title': 'Sunset Boulevard',
+              'src': 'sunset.jpg', 'cls': 'framed'}
+>>> tag(**my_tag)
+<img class="framed" src="sunset.jpg" title="Sunset Boulevard" />
 
-  print("Call function repeat using a dictionary of keyword arguments:")
-  kwargs = {'count': 4, 'name': 'cats'}
-  repeat(**kwargs)
+Excerpt From: Luciano Ramalho. Fluent Python. Apple Books. 
 {% endhighlight %}
 
 
@@ -102,9 +127,74 @@ Excerpt From: Luciano Ramalho. “Fluent Python.” Apple Books.
 This is an example of creating, saving, and loading a large number of floats. In this case, loading with **array.fromfile** is ~60x faster than using **open**. Saving with **array.tofile** is ~7x faster than traditionally writing one number to a file at a time. 
 
 ## 6. Dicts
+Python contains many implementation of dict, but need to import *collections*:
+1. dict (regular)
+2. DefaultDict (default value)
+3. OrdereDict (ordered keys)
+4. ChainMap (many dicts that are searched in order)
+5. MappingProxyType (can be used to create immutable map)
+
+Personally, I find the MappingProxyType very interesting. **To create secure code and to share data across teams, you might want to create a dictionary that can't be modified.** This is an example of hwo to do so. 
+{% highlight python lineos %}
+>>> from types import MappingProxyType
+>>> d = {1: 'A'}
+>>> d_proxy = MappingProxyType(d)
+>>> d_proxy
+mappingproxy({1: 'A'})
+>>> d_proxy[1]  
+'A'
+>>> d_proxy[2] = 'x'  
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: 'mappingproxy' object does not support item assignment
+>>> d[2] = 'B'
+>>> d_proxy  
+mappingproxy({1: 'A', 2: 'B'})
+>>> d_proxy[2]
+'B'
+>>>
+Excerpt From: Luciano Ramalho. Fluent Python. Apple Books. 
+{% endhighlight %}
+
+
 Dictionary comprehension is the same thing as list comprehension
 {% highlight python lineos %}
 >>> items = [(1, 'one'), (2, 'two'), (3, 'three')]
 >>> dict_items = {key:val for key, val in items}
 {1: 'one', 2: 'two', 3: 'three'}
 {% endhighlight %}
+
+## 7. Sets
+*Sets* and *Frozensets* are implemented with hash tables under the hood. 
+
+### Why can't we add to sets/dicts while iterating through?
+When you add to sets/dict while iterating, the Python interpreter might
+decide that the underlying hash table needs to grow. This entails creating a new hash table where the order of the keys are different. Thus, when you iterate, you might not see all the elements. 
+
+## 8. Texts vs Bytes
+One thing I was not aware of was how many different types of encoding there were for python. Most python programmers use ASCII, or utf-8. However, there are many types of encoding such as:
+#### 1. gb2312
+Used to encode the simplified Chinese ideographs used in mainland China; one of several widely deployed multibyte encodings for Asian languages.
+#### 2. cp1252
+A latin1 superset by Microsoft, adding useful symbols like curly quotes and the € (euro); some Windows apps call it “ANSI,” but it was never a real ANSI standard.
+
+There are many more encodings for different countries (Russia, South America) and different types of computers (Windows, IBM), but mostly I don't care enough so I skipped it. 
+
+
+## 8. Function Annotations
+Python is not a statically typed language, but Python3 introduces Function Annotations which provide "hints" for what the function is suppose to do. These "hints" do not raise errors, so it is still up to the user to validate the inputs however :(
+
+{% highlight python %}
+def foo(bar:str, baz:'int>0') -> str:
+  new_str = bar + str(baz)
+  return new_str
+
+>>> foo.__annotations__
+{'bar': str, 'baz': 'int >0', 'return': str}
+>>> foo("two", 2)
+'two2'
+{% endhighlight %}
+
+
+
+## Modern Pythonistic Way for map, reduce, filter

@@ -215,30 +215,44 @@
 I read a bunch of blog posts as well as Fluent Python. Here are my summarized findings.</p>
 
 <h2 id="1-packing-and-unpacking">1. Packing and Unpacking</h2>
-<p>If you are your arguments in a list or a dictionary, you can the unpacking operators * and ** to pass the arguments.</p>
+<p>If you are your arguments in a list or a dictionary, you can the unpacking operators * and ** to pass the arguments. This turns out to be very useful because you can create very flexible functions. Below is an example of a function outputting html based on a variety of inputs.</p>
 
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-</pre></td><td class="code"><pre>  <span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
-          <span class="k">print</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">content</span><span class="p">,</span> <span class="n">cls</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">attrs</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+          <span class="n">attrs</span><span class="p">[</span><span class="s">'class'</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span>
+      <span class="k">if</span> <span class="n">attrs</span><span class="p">:</span>
+          <span class="n">attr_str</span> <span class="o">=</span> <span class="s">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">' </span><span class="si">%</span><span class="s">s="</span><span class="si">%</span><span class="s">s"'</span> <span class="o">%</span> <span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span>
+                            <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+      <span class="k">else</span><span class="p">:</span>
+          <span class="n">attr_str</span> <span class="o">=</span> <span class="s">''</span>
+      
+      <span class="k">if</span> <span class="n">content</span><span class="p">:</span>
+          <span class="k">return</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">'&lt;</span><span class="si">%</span><span class="s">s</span><span class="si">%</span><span class="s">s&gt;</span><span class="si">%</span><span class="s">s&lt;/</span><span class="si">%</span><span class="s">s&gt;'</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">attr_str</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">content</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+          <span class="k">return</span> <span class="s">'&lt;</span><span class="si">%</span><span class="s">s</span><span class="si">%</span><span class="s">s /&gt;'</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">attr_str</span><span class="p">)</span>
 
-  <span class="k">print</span><span class="p">(</span><span class="s">"Call function repeat using a list of arguments:"</span><span class="p">)</span>
-  <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="s">"cats"</span><span class="p">]</span>
-  <span class="n">repeat</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tag</span><span class="p">(</span><span class="s">'br'</span><span class="p">)</span>   
+<span class="s">'&lt;br /&gt;'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tag</span><span class="p">(</span><span class="s">'p'</span><span class="p">,</span> <span class="s">'hello'</span><span class="p">)</span>   
+<span class="s">'&lt;p&gt;hello&lt;/p&gt;'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">tag</span><span class="p">(</span><span class="s">'p'</span><span class="p">,</span> <span class="s">'hello'</span><span class="p">,</span> <span class="s">'world'</span><span class="p">))</span>
+<span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">hello</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">world</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tag</span><span class="p">(</span><span class="s">'p'</span><span class="p">,</span> <span class="s">'hello'</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">33</span><span class="p">)</span>   
+<span class="o">&lt;</span><span class="n">p</span> <span class="nb">id</span><span class="o">=</span><span class="s">"33"</span><span class="o">&gt;</span><span class="n">hello</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">tag</span><span class="p">(</span><span class="s">'p'</span><span class="p">,</span> <span class="s">'hello'</span><span class="p">,</span> <span class="s">'world'</span><span class="p">,</span> <span class="n">cls</span><span class="o">=</span><span class="s">'sidebar'</span><span class="p">))</span>   
+<span class="o">&lt;</span><span class="n">p</span> <span class="n">class</span><span class="o">=</span><span class="s">"sidebar"</span><span class="o">&gt;</span><span class="n">hello</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">p</span> <span class="n">class</span><span class="o">=</span><span class="s">"sidebar"</span><span class="o">&gt;</span><span class="n">world</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tag</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s">'testing'</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">"img"</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">img</span> <span class="n">content</span><span class="o">=</span><span class="s">"testing"</span> <span class="o">/&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">my_tag</span> <span class="o">=</span> <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'img'</span><span class="p">,</span> <span class="s">'title'</span><span class="p">:</span> <span class="s">'Sunset Boulevard'</span><span class="p">,</span>
+              <span class="s">'src'</span><span class="p">:</span> <span class="s">'sunset.jpg'</span><span class="p">,</span> <span class="s">'cls'</span><span class="p">:</span> <span class="s">'framed'</span><span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tag</span><span class="p">(</span><span class="o">**</span><span class="n">my_tag</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">img</span> <span class="n">class</span><span class="o">=</span><span class="s">"framed"</span> <span class="n">src</span><span class="o">=</span><span class="s">"sunset.jpg"</span> <span class="n">title</span><span class="o">=</span><span class="s">"Sunset Boulevard"</span> <span class="o">/&gt;</span>
 
-  <span class="k">print</span><span class="p">(</span><span class="s">"Call function repeat using a dictionary of keyword arguments:"</span><span class="p">)</span>
-  <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s">'count'</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s">'name'</span><span class="p">:</span> <span class="s">'cats'</span><span class="p">}</span>
-  <span class="n">repeat</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></pre></td></tr></tbody></table></code></pre></figure>
+<span class="n">Excerpt</span> <span class="n">From</span><span class="p">:</span> <span class="n">Luciano</span> <span class="n">Ramalho</span><span class="o">.</span> <span class="n">Fluent</span> <span class="n">Python</span><span class="o">.</span> <span class="n">Apple</span> <span class="n">Books</span><span class="o">.</span> </code></pre></figure>
 
 <h2 id="2-decorators">2. Decorators</h2>
 <p>A decorator is a function which takes a function as a parameter and returns a function. A practical example of a decorator is a cache to for certain inputs.</p>
@@ -314,11 +328,71 @@ A good example in the book. For example, if you had a list of scores and wanted 
 <p>This is an example of creating, saving, and loading a large number of floats. In this case, loading with <strong>array.fromfile</strong> is ~60x faster than using <strong>open</strong>. Saving with <strong>array.tofile</strong> is ~7x faster than traditionally writing one number to a file at a time.</p>
 
 <h2 id="6-dicts">6. Dicts</h2>
+<p>Python contains many implementation of dict, but need to import <em>collections</em>:</p>
+<ol>
+  <li>dict (regular)</li>
+  <li>DefaultDict (default value)</li>
+  <li>OrdereDict (ordered keys)</li>
+  <li>ChainMap (many dicts that are searched in order)</li>
+  <li>MappingProxyType (can be used to create immutable map)</li>
+</ol>
+
+<p>Personally, I find the MappingProxyType very interesting. <strong>To create secure code and to share data across teams, you might want to create a dictionary that can’t be modified.</strong> This is an example of hwo to do so.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">MappingProxyType</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s">'A'</span><span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d_proxy</span> <span class="o">=</span> <span class="n">MappingProxyType</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d_proxy</span>
+<span class="n">mappingproxy</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="s">'A'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d_proxy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  
+<span class="s">'A'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d_proxy</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s">'x'</span>  
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s">"&lt;stdin&gt;"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+<span class="nb">TypeError</span><span class="p">:</span> <span class="s">'mappingproxy'</span> <span class="nb">object</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">support</span> <span class="n">item</span> <span class="n">assignment</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s">'B'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d_proxy</span>  
+<span class="n">mappingproxy</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="s">'A'</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s">'B'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d_proxy</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="s">'B'</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="n">Excerpt</span> <span class="n">From</span><span class="p">:</span> <span class="n">Luciano</span> <span class="n">Ramalho</span><span class="o">.</span> <span class="n">Fluent</span> <span class="n">Python</span><span class="o">.</span> <span class="n">Apple</span> <span class="n">Books</span><span class="o">.</span> </code></pre></figure>
+
 <p>Dictionary comprehension is the same thing as list comprehension</p>
 
 <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&gt;&gt;&gt;</span> <span class="n">items</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="s">'one'</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'two'</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">'three'</span><span class="p">)]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">dict_items</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span><span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">items</span><span class="p">}</span>
 <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s">'one'</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s">'two'</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s">'three'</span><span class="p">}</span></code></pre></figure>
+
+<h2 id="7-sets">7. Sets</h2>
+<p><em>Sets</em> and <em>Frozensets</em> are implemented with hash tables under the hood.</p>
+
+<h3 id="why-cant-we-add-to-setsdicts-while-iterating-through">Why can’t we add to sets/dicts while iterating through?</h3>
+<p>When you add to sets/dict while iterating, the Python interpreter might
+decide that the underlying hash table needs to grow. This entails creating a new hash table where the order of the keys are different. Thus, when you iterate, you might not see all the elements.</p>
+
+<h2 id="8-texts-vs-bytes">8. Texts vs Bytes</h2>
+<p>One thing I was not aware of was how many different types of encoding there were for python. Most python programmers use ASCII, or utf-8. However, there are many types of encoding such as:</p>
+<h4 id="1-gb2312">1. gb2312</h4>
+<p>Used to encode the simplified Chinese ideographs used in mainland China; one of several widely deployed multibyte encodings for Asian languages.</p>
+<h4 id="2-cp1252">2. cp1252</h4>
+<p>A latin1 superset by Microsoft, adding useful symbols like curly quotes and the € (euro); some Windows apps call it “ANSI,” but it was never a real ANSI standard.</p>
+
+<p>There are many more encodings for different countries (Russia, South America) and different types of computers (Windows, IBM), but mostly I don’t care enough so I skipped it.</p>
+
+<h2 id="8-function-annotations">8. Function Annotations</h2>
+<p>Python is not a statically typed language, but Python3 introduces Function Annotations which provide “hints” for what the function is suppose to do. These “hints” do not raise errors, so it is still up to the user to validate the inputs however :(</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">bar</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">baz</span><span class="p">:</span><span class="s">'int&gt;0'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+  <span class="n">new_str</span> <span class="o">=</span> <span class="n">bar</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">baz</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">new_str</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="o">.</span><span class="n">__annotations__</span>
+<span class="p">{</span><span class="s">'bar'</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="s">'baz'</span><span class="p">:</span> <span class="s">'int &gt;0'</span><span class="p">,</span> <span class="s">'return'</span><span class="p">:</span> <span class="nb">str</span><span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span><span class="p">(</span><span class="s">"two"</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="s">'two2'</span></code></pre></figure>
+
+<h2 id="modern-pythonistic-way-for-map-reduce-filter">Modern Pythonistic Way for map, reduce, filter</h2>
 
 
 	</div>
