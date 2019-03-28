@@ -5,7 +5,7 @@ featured_image: '/images/demo/demo-portrait.jpg'
 excerpt: Advanced Python Features 
 ---
 
-Recently, I'm been using Python alot, so I wanted to explore the advanced python features. Here are some things about Python that I learned. 
+Recently, I'm been wanting to use Python lots, so I wanted to explore the advanced python features. Here are some things about Python that I learned. 
 I read a bunch of blog posts as well as Fluent Python. Here are my summarized findings. 
 
 ## 1. Packing and Unpacking 
